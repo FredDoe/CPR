@@ -1,6 +1,6 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/rshariffdeen/cpr.svg)](https://hub.docker.com/r/rshariffdeen/cpr) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4668317.svg)](https://doi.org/10.5281/zenodo.4668317)
 
-# CPR - CardioPulmonary Resuscitation
+# CPR - Concolic Program Repair
 CPR: A new automated program repair technique based on concolic execution
 which works on patch abstraction with the sub-optimal goal of refining the patch to less over-fit 
 the initial test cases. 
