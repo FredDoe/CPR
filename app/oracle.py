@@ -27,21 +27,28 @@ def update_contradiction_included(lock):
     return res
 
 
-
 import sys
+
 if not sys.warnoptions:
     import warnings
+
     warnings.simplefilter("ignore")
 
 
 def did_program_crash(program_output):
-    if any(crash_word in str(program_output).lower() for crash_word in definitions.crash_word_list):
+    if any(
+        crash_word in str(program_output).lower()
+        for crash_word in definitions.crash_word_list
+    ):
         return True
     return False
 
 
 def any_runtime_error(program_output):
-    if any(error_word in str(program_output).lower() for error_word in definitions.error_word_list):
+    if any(
+        error_word in str(program_output).lower()
+        for error_word in definitions.error_word_list
+    ):
         return True
     return False
 
@@ -94,7 +101,9 @@ def check_path_feasibility(chosen_control_loc, new_path, index):
         return False, index
 
 
-def check_patch_feasibility(assertion, var_relationship, patch_constraint, path_condition, index):  # TODO
+def check_patch_feasibility(
+    assertion, var_relationship, patch_constraint, path_condition, index
+):  # TODO
     path_constraint = And(path_condition, patch_constraint)
     patch_score = 0
     is_under_approx = None
@@ -149,8 +158,8 @@ def is_component_constant(patch_comp):
 
 def is_same_children(patch_comp):
     (_, _), children = patch_comp
-    right_child = children['right']
-    left_child = children['left']
+    right_child = children["right"]
+    left_child = children["left"]
     (cid_right, _), _ = right_child
     (cid_left, _), _ = left_child
     if cid_left == cid_right:
@@ -179,10 +188,21 @@ def is_always_false(patch):
 def is_tree_duplicate(tree, lock):
     (cid, semantics), children = tree
     if len(children) == 2:
-        right_child = children['right']
-        left_child = children['left']
+        right_child = children["right"]
+        left_child = children["left"]
 
-        if cid in ["less-than", "less-or-equal", "greater-than", "greater-or-equal", "equal", "not-equal", "addition", "division", "multiplication", "subtraction"]:
+        if cid in [
+            "less-than",
+            "less-or-equal",
+            "greater-than",
+            "greater-or-equal",
+            "equal",
+            "not-equal",
+            "addition",
+            "division",
+            "multiplication",
+            "subtraction",
+        ]:
             is_right_constant = is_component_constant(right_child)
             is_left_constant = is_component_constant(left_child)
             if is_right_constant and is_left_constant:
@@ -191,16 +211,29 @@ def is_tree_duplicate(tree, lock):
                 if is_left_constant or is_right_constant:
                     return True
                 else:
-                    if cid in ['not-equal', 'less-than', 'greater-than']:
+                    if cid in ["not-equal", "less-than", "greater-than"]:
                         return not update_contradiction_included(lock)
-                    elif cid in ['equal', 'less-or-equal', 'greater-or-equal']:
+                    elif cid in ["equal", "less-or-equal", "greater-or-equal"]:
                         return not update_tautology_included(lock)
-                    elif cid in ['addition', 'division', 'subtraction', 'remainder']:
+                    elif cid in ["addition", "division", "subtraction", "remainder"]:
                         return True
                     # else:
                     #     return True
 
-        if cid in ["logical-or", "logical-and", "less-than", "less-or-equal", "greater-than", "greater-or-equal", "equal", "not-equal", "addition", "division", "multiplication", "subtraction"]:
+        if cid in [
+            "logical-or",
+            "logical-and",
+            "less-than",
+            "less-or-equal",
+            "greater-than",
+            "greater-or-equal",
+            "equal",
+            "not-equal",
+            "addition",
+            "division",
+            "multiplication",
+            "subtraction",
+        ]:
             is_right_redundant = is_tree_duplicate(right_child, lock)
             is_left_redundant = is_tree_duplicate(left_child, lock)
             if is_right_redundant or is_left_redundant:

@@ -1,8 +1,8 @@
 def parse_z3_output(z3_output):
     """
-           This function will read the output log of z3 cli interface and extract/parse the values of the model
-           Arguments:
-               z3_output: string output of the z3 cli invocation
+    This function will read the output log of z3 cli interface and extract/parse the values of the model
+    Arguments:
+        z3_output: string output of the z3 cli invocation
     """
     model = dict()
     var_name = ""
@@ -18,8 +18,11 @@ def parse_z3_output(z3_output):
                     byte_list = dict()
                     byte_list[0] = int("0x" + str_value, 16)
                 elif "(lambda ((x!1 (_ BitVec 32))) #x" in str_lambda:
-                    str_value = str_lambda.replace("(lambda ((x!1 (_ BitVec 32))) ", "").replace("))", "").replace("\n",
-                                                                                                                   "")
+                    str_value = (
+                        str_lambda.replace("(lambda ((x!1 (_ BitVec 32))) ", "")
+                        .replace("))", "")
+                        .replace("\n", "")
+                    )
                     byte_list[0] = int(str_value.replace("#", "0"), 16)
                 elif "true)" in str_lambda:
                     byte_list[0] = int("0xff", 16)

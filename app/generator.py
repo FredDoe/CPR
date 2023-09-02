@@ -1,5 +1,14 @@
-from app.synthesis import load_specification, synthesize_parallel, Program, synthesize_lazy, program_to_formula, \
-    collect_symbols, ComponentSymbol, RuntimeSymbol, program_to_code
+from app.synthesis import (
+    load_specification,
+    synthesize_parallel,
+    Program,
+    synthesize_lazy,
+    program_to_formula,
+    collect_symbols,
+    ComponentSymbol,
+    RuntimeSymbol,
+    program_to_code,
+)
 from pathlib import Path
 from typing import List, Dict
 from six.moves import cStringIO
@@ -8,7 +17,17 @@ import os
 from pysmt.smtlib.parser import SmtLibParser
 from pysmt.typing import BV32, BV8, ArrayType
 from pysmt.shortcuts import write_smtlib, get_model, Symbol, is_unsat
-from app import emitter, values, reader, definitions, extractor, oracle, utilities, parser, configuration
+from app import (
+    emitter,
+    values,
+    reader,
+    definitions,
+    extractor,
+    oracle,
+    utilities,
+    parser,
+    configuration,
+)
 import re
 import struct
 import random
@@ -19,7 +38,6 @@ File_Ktest_Path = "/tmp/concolic.ktest"
 
 
 def generate_patch(project_path, model_list=None) -> List[Dict[str, Program]]:
-
     definitions.FILE_PATCH_SET = definitions.DIRECTORY_OUTPUT + "/patch-set"
 
     # emitter.sub_sub_title("Generating Patch")
@@ -47,7 +65,9 @@ def generate_patch(project_path, model_list=None) -> List[Dict[str, Program]]:
     lower_bound = values.DEFAULT_PATCH_LOWER_BOUND
     upper_bound = values.DEFAULT_PATCH_UPPER_BOUND + 1
 
-    result = synthesize_lazy(components, depth, specification, concrete_enumeration, lower_bound, upper_bound)
+    result = synthesize_lazy(
+        components, depth, specification, concrete_enumeration, lower_bound, upper_bound
+    )
 
     # list_of_patches = [_ for _ in result]
     # generated_patch = None
@@ -69,7 +89,7 @@ def generate_patch_index_map(patch_list):
         patch_formula = generate_formula_from_patch(patch)
         patch_formula_str = patch_formula.serialize()
         patch_index = utilities.get_hash(patch_formula_str)
-        for (lid, prog) in patch.items():
+        for lid, prog in patch.items():
             code = lid + ": " + (program_to_code(prog))
         for comp_var, prog_var in values.MAP_PROG_VAR.items():
             code = code.replace(comp_var, prog_var)
@@ -79,10 +99,11 @@ def generate_patch_index_map(patch_list):
 
 
 def generate_patch_set(project_path, model_list=None) -> List[Dict[str, Program]]:
-
     definitions.FILE_PATCH_SET = definitions.DIRECTORY_OUTPUT + "/patch-set"
     definitions.FILE_PATCH_RANK_INDEX = definitions.DIRECTORY_OUTPUT + "/patch-index"
-    definitions.FILE_PATCH_RANK_MATRIX = definitions.DIRECTORY_OUTPUT + "/patch-rank-matrix"
+    definitions.FILE_PATCH_RANK_MATRIX = (
+        definitions.DIRECTORY_OUTPUT + "/patch-rank-matrix"
+    )
 
     if values.CONF_SKIP_GEN:
         emitter.sub_title("Loading Patch Pool")
@@ -105,7 +126,7 @@ def generate_patch_set(project_path, model_list=None) -> List[Dict[str, Program]
     test_index = -1
     count_seeds = len(values.LIST_SEED_INPUT)
     count_inputs = len(test_input_list)
-    for arg_list_str in test_input_list[:count_inputs - count_seeds]:
+    for arg_list_str in test_input_list[: count_inputs - count_seeds]:
         arg_list = configuration.extract_input_arg_list(arg_list_str)
         seed_file = None
         test_index = test_index + 1
@@ -119,7 +140,9 @@ def generate_patch_set(project_path, model_list=None) -> List[Dict[str, Program]
             if seed_file:
                 arg_list = [x.replace(seed_file, "$POC") for x in arg_list]
                 seed_name = seed_file.split("/")[-1].split(".")[0]
-                expected_output_file = values.CONF_TEST_OUTPUT_DIR + "/" + seed_name + ".smt2"
+                expected_output_file = (
+                    values.CONF_TEST_OUTPUT_DIR + "/" + seed_name + ".smt2"
+                )
                 if os.path.isfile(expected_output_file):
                     output_spec_path = Path(os.path.abspath(expected_output_file))
         else:
@@ -158,11 +181,29 @@ def generate_patch_set(project_path, model_list=None) -> List[Dict[str, Program]
     emitter.sub_sub_title("Synthesising Patches")
     emitter.normal("\tenumerating patch space")
     if values.DEFAULT_PATCH_TYPE == values.OPTIONS_PATCH_TYPE[0]:
-        result = synthesize_lazy(components, depth, specification, concrete_enumeration, lower_bound, upper_bound)
+        result = synthesize_lazy(
+            components,
+            depth,
+            specification,
+            concrete_enumeration,
+            lower_bound,
+            upper_bound,
+        )
     else:
-        result = synthesize_parallel(components, depth, specification, concrete_enumeration, lower_bound, upper_bound)
-    emitter.highlight("\tnumber of abstract patches explored: " + str(values.COUNT_TEMPLATES_EXPLORED))
-    emitter.highlight("\tnumber of concrete patches explored: " + str(values.COUNT_PATCHES_EXPLORED))
+        result = synthesize_parallel(
+            components,
+            depth,
+            specification,
+            concrete_enumeration,
+            lower_bound,
+            upper_bound,
+        )
+    emitter.highlight(
+        "\tnumber of abstract patches explored: " + str(values.COUNT_TEMPLATES_EXPLORED)
+    )
+    emitter.highlight(
+        "\tnumber of concrete patches explored: " + str(values.COUNT_PATCHES_EXPLORED)
+    )
     list_of_patches = [_ for _ in result]
     filtered_patch_list = []
     # writer.write_as_pickle(list_of_patches, definitions.FILE_PATCH_SET)
@@ -212,11 +253,11 @@ def generate_true_constraint(path_constraint):
             if true_constraint:
                 if path_constraint.is_and():
                     true_constraint = And(true_constraint, constraint)
-                elif  path_constraint.is_or():
+                elif path_constraint.is_or():
                     true_constraint = Or(true_constraint, constraint)
             else:
                 true_constraint = constraint
-            prefix= path_constraint.arg(0)
+            prefix = path_constraint.arg(0)
             if prefix.is_and() or prefix.is_or():
                 path_constraint = prefix
             else:
@@ -303,7 +344,9 @@ def generate_special_paths(con_loc, ppc_str):
     special_list = []
     script = parser.get_script(cStringIO(ppc_str))
     path_condition = script.get_last_formula()
-    angelic_count = int(len(re.findall("angelic!(.+?)!0", str(path_condition.serialize()))) / 4)
+    angelic_count = int(
+        len(re.findall("angelic!(.+?)!0", str(path_condition.serialize()))) / 4
+    )
     if angelic_count > 1:
         false_path = generate_false_path(path_condition)
         true_path = generate_true_path(path_condition)
@@ -315,7 +358,11 @@ def generate_special_paths(con_loc, ppc_str):
 
 
 def generate_angelic_val(klee_out_dir, arg_list, poc_path):
-    file_list = [os.path.join(klee_out_dir, f) for f in os.listdir(klee_out_dir) if os.path.isfile(os.path.join(klee_out_dir,f))]
+    file_list = [
+        os.path.join(klee_out_dir, f)
+        for f in os.listdir(klee_out_dir)
+        if os.path.isfile(os.path.join(klee_out_dir, f))
+    ]
     ref_file_path = None
     largest_file_path = None
     largest_file_size = 0
@@ -360,9 +407,9 @@ def generate_mask_bytes(klee_out_dir, poc_path):
 
 def generate_model(formula):
     """
-           This function will invoke PySMT APIs to solve the provided formula and return the byte list of the model
-           Arguments:
-               formula: smtlib formatted formula
+    This function will invoke PySMT APIs to solve the provided formula and return the byte list of the model
+    Arguments:
+        formula: smtlib formatted formula
     """
     emitter.debug("extracting z3 model")
     model = get_model(formula)
@@ -488,12 +535,22 @@ def generate_new_input(sym_path, argument_list=None, poc_path=None, gen_path=Non
         if values.CONF_MASK_ARG:
             arg_index_orig = mask_map[arg_index_orig]
         # print(arg_name, arg_index, arg_value)
-        if str(argument_list[arg_index_orig]).isnumeric() or \
-                (not str(argument_list[arg_index_orig]).isalpha() and any(op in str(argument_list[arg_index_orig]) for op in ["+", "-", "/", "*"])):
+        if str(argument_list[arg_index_orig]).isnumeric() or (
+            not str(argument_list[arg_index_orig]).isalpha()
+            and any(
+                op in str(argument_list[arg_index_orig]) for op in ["+", "-", "/", "*"]
+            )
+        ):
             input_arg_dict[arg_index] = str(arg_value)
             # emitter.debug(arg_name, arg_value)
         else:
-            arg_str_filtered = str(arg_str).replace("<", "a").replace("&", "s").replace(">", "a").replace("'", "a")
+            arg_str_filtered = (
+                str(arg_str)
+                .replace("<", "a")
+                .replace("&", "s")
+                .replace(">", "a")
+                .replace("'", "a")
+            )
             input_arg_dict[arg_index] = arg_str_filtered
             # emitter.debug(arg_name, arg_str)
 
@@ -527,7 +584,9 @@ def generate_new_input(sym_path, argument_list=None, poc_path=None, gen_path=Non
             var_value = utilities.get_signed_value(bit_vector)
         # emitter.debug(var_name, var_value)
         if "angelic" in var_name:
-            input_var_list.append({"identifier": var_name, "value": var_value, "size": 4})
+            input_var_list.append(
+                {"identifier": var_name, "value": var_value, "size": 4}
+            )
         # input_var_list.append({"identifier": var_name, "value": var_value, "size": 4})
 
     # for var_tuple in second_var_list:
@@ -546,9 +605,9 @@ def generate_new_input(sym_path, argument_list=None, poc_path=None, gen_path=Non
 
 def generate_model_cli(formula):
     """
-           This function will invoke the Z3 Cli interface to solve the provided formula and return the model byte list
-           Arguments:
-               formula: smtlib formatted formula
+    This function will invoke the Z3 Cli interface to solve the provided formula and return the model byte list
+    Arguments:
+        formula: smtlib formatted formula
     """
     emitter.normal("\textracting z3 model")
     path_script = "/tmp/z3_script_model_cli"
@@ -571,7 +630,7 @@ def generate_binary_file(byte_array, seed_file_path, gen_file_path=None):
     with open(seed_file_path, "rb") as poc_file:
         byte = poc_file.read(1)
         while byte:
-            number = int(struct.unpack('>B', byte)[0])
+            number = int(struct.unpack(">B", byte)[0])
             byte_list.append(number)
             byte = poc_file.read(1)
     mask_byte_list = values.MASK_BYTE_LIST[seed_file_path]
@@ -585,7 +644,9 @@ def generate_binary_file(byte_array, seed_file_path, gen_file_path=None):
     if "." in seed_file_path:
         file_extension = str(seed_file_path).split(".")[-1]
     if not gen_file_path:
-        gen_file_path = definitions.DIRECTORY_OUTPUT + "/input-" + str(values.ITERATION_NO)
+        gen_file_path = (
+            definitions.DIRECTORY_OUTPUT + "/input-" + str(values.ITERATION_NO)
+        )
     values.FILE_POC_GEN = gen_file_path
     if file_extension:
         values.FILE_POC_GEN = values.FILE_POC_GEN + "." + file_extension
@@ -630,13 +691,15 @@ def generate_ktest(argument_list, second_var_list, print_output=False):
         else:
             if argument in ["''"]:
                 argument = ""
-            if "\"" in argument:
+            if '"' in argument:
                 ktest_command += " --sym-arg '" + str(argument) + "'"
                 continue
-            ktest_command += " --sym-arg \"" + str(argument) + "\""
+            ktest_command += ' --sym-arg "' + str(argument) + '"'
 
     for var in second_var_list:
-        ktest_command += " --second-var \'{0}\' {1} {2}".format(var['identifier'], var['size'], var['value'])
+        ktest_command += " --second-var '{0}' {1} {2}".format(
+            var["identifier"], var["size"], var["value"]
+        )
     return_code = utilities.execute_command(ktest_command)
     return ktest_path, return_code
 
@@ -743,8 +806,8 @@ def generate_patch_space(patch):
     for var in var_list:
         if "const_" in str(var):
             constraint_info = dict()
-            constraint_info['lower-bound'] = values.DEFAULT_PATCH_LOWER_BOUND
-            constraint_info['upper-bound'] = values.DEFAULT_PATCH_UPPER_BOUND
+            constraint_info["lower-bound"] = values.DEFAULT_PATCH_LOWER_BOUND
+            constraint_info["upper-bound"] = values.DEFAULT_PATCH_UPPER_BOUND
             partition[str(var)] = constraint_info
     partition_list.append(partition)
     return partition_list
@@ -756,24 +819,29 @@ def generate_input_space(path_condition):
     for var in var_list:
         if "rvalue!" in str(var):
             constraint_info = dict()
-            constraint_info['lower-bound'] = values.DEFAULT_INPUT_LOWER_BOUND
-            constraint_info['upper-bound'] = values.DEFAULT_INPUT_UPPER_BOUND
+            constraint_info["lower-bound"] = values.DEFAULT_INPUT_LOWER_BOUND
+            constraint_info["upper-bound"] = values.DEFAULT_INPUT_UPPER_BOUND
             partition[str(var)] = constraint_info
     return partition
 
 
-def generate_partition_for_patch_space(partition_model, patch_space, is_multi_dimension):
+def generate_partition_for_patch_space(
+    partition_model, patch_space, is_multi_dimension
+):
     partition_list = list()
     parameter_name = list(sorted(partition_model.keys()))[0]
     partition_value = partition_model[parameter_name]
     constraint_info = patch_space[parameter_name]
-    constraint_info['name'] = parameter_name
-    constraint_info['partition-value'] = partition_value
-    param_partition_list = generate_partition_for_parameter(constraint_info, partition_value,
-                                                            is_multi_dimension, parameter_name)
+    constraint_info["name"] = parameter_name
+    constraint_info["partition-value"] = partition_value
+    param_partition_list = generate_partition_for_parameter(
+        constraint_info, partition_value, is_multi_dimension, parameter_name
+    )
     del partition_model[parameter_name]
     if partition_model:
-        partition_list_tmp = generate_partition_for_patch_space(partition_model, patch_space, is_multi_dimension)
+        partition_list_tmp = generate_partition_for_patch_space(
+            partition_model, patch_space, is_multi_dimension
+        )
         for partition_a in partition_list_tmp:
             for partition_b in param_partition_list:
                 partition_b.update(partition_a)
@@ -785,18 +853,23 @@ def generate_partition_for_patch_space(partition_model, patch_space, is_multi_di
     return partition_list
 
 
-def generate_partition_for_input_space(partition_model, input_space, is_multi_dimension):
+def generate_partition_for_input_space(
+    partition_model, input_space, is_multi_dimension
+):
     partition_list = list()
     var_name = list(sorted(partition_model.keys()))[0]
     partition_value = partition_model[var_name]
     constraint_info = input_space[var_name]
-    constraint_info['name'] = var_name
-    constraint_info['partition-value'] = partition_value
-    var_partition_list = generate_partition_for_input(constraint_info, partition_value,
-                                                      is_multi_dimension, var_name)
+    constraint_info["name"] = var_name
+    constraint_info["partition-value"] = partition_value
+    var_partition_list = generate_partition_for_input(
+        constraint_info, partition_value, is_multi_dimension, var_name
+    )
     del partition_model[var_name]
     if partition_model:
-        partition_list_tmp = generate_partition_for_input_space(partition_model, input_space, is_multi_dimension)
+        partition_list_tmp = generate_partition_for_input_space(
+            partition_model, input_space, is_multi_dimension
+        )
         for partition_a in partition_list_tmp:
             for partition_b in var_partition_list:
                 partition_b.update(partition_a)
@@ -808,68 +881,68 @@ def generate_partition_for_input_space(partition_model, input_space, is_multi_di
     return partition_list
 
 
-def generate_partition_for_parameter(constraint_info, partition_value, is_multi_dimension, parameter_name):
+def generate_partition_for_parameter(
+    constraint_info, partition_value, is_multi_dimension, parameter_name
+):
     partition_list = list()
     partition_info = dict()
     range_info = dict()
     if is_multi_dimension:
         range_equal = (partition_value, partition_value)
-        range_info['lower-bound'] = range_equal[0]
-        range_info['upper-bound'] = range_equal[1]
+        range_info["lower-bound"] = range_equal[0]
+        range_info["upper-bound"] = range_equal[1]
         partition_info[parameter_name] = range_info
         partition_list.append(copy.deepcopy(partition_info))
 
-    if constraint_info['lower-bound'] == constraint_info['upper-bound']:
+    if constraint_info["lower-bound"] == constraint_info["upper-bound"]:
         return partition_list
-    range_lower = (constraint_info['lower-bound'], partition_value - 1)
-    range_upper = (partition_value + 1, constraint_info['upper-bound'])
+    range_lower = (constraint_info["lower-bound"], partition_value - 1)
+    range_upper = (partition_value + 1, constraint_info["upper-bound"])
 
     if oracle.is_valid_range(range_lower):
-        range_info['lower-bound'] = range_lower[0]
-        range_info['upper-bound'] = range_lower[1]
+        range_info["lower-bound"] = range_lower[0]
+        range_info["upper-bound"] = range_lower[1]
         partition_info[parameter_name] = range_info
         partition_list.append(copy.deepcopy(partition_info))
     if oracle.is_valid_range(range_upper):
-        range_info['lower-bound'] = range_upper[0]
-        range_info['upper-bound'] = range_upper[1]
+        range_info["lower-bound"] = range_upper[0]
+        range_info["upper-bound"] = range_upper[1]
         partition_info[parameter_name] = range_info
         partition_list.append(copy.deepcopy(partition_info))
 
     return partition_list
 
 
-def generate_partition_for_input(constraint_info, partition_value, is_multi_dimension, var_name):
+def generate_partition_for_input(
+    constraint_info, partition_value, is_multi_dimension, var_name
+):
     partition_list = list()
     partition_info = dict()
     range_info = dict()
     if is_multi_dimension:
         range_equal = (partition_value, partition_value)
-        range_info['lower-bound'] = range_equal[0]
-        range_info['upper-bound'] = range_equal[1]
+        range_info["lower-bound"] = range_equal[0]
+        range_info["upper-bound"] = range_equal[1]
         partition_info[var_name] = range_info
         partition_list.append(copy.deepcopy(partition_info))
 
-    if constraint_info['lower-bound'] == constraint_info['upper-bound']:
+    if constraint_info["lower-bound"] == constraint_info["upper-bound"]:
         return partition_list
-    range_lower = (constraint_info['lower-bound'], partition_value - 1)
-    range_upper = (partition_value + 1, constraint_info['upper-bound'])
+    range_lower = (constraint_info["lower-bound"], partition_value - 1)
+    range_upper = (partition_value + 1, constraint_info["upper-bound"])
 
     if oracle.is_valid_range(range_lower):
-        range_info['lower-bound'] = range_lower[0]
-        range_info['upper-bound'] = range_lower[1]
+        range_info["lower-bound"] = range_lower[0]
+        range_info["upper-bound"] = range_lower[1]
         partition_info[var_name] = range_info
         partition_list.append(copy.deepcopy(partition_info))
     if oracle.is_valid_range(range_upper):
-        range_info['lower-bound'] = range_upper[0]
-        range_info['upper-bound'] = range_upper[1]
+        range_info["lower-bound"] = range_upper[0]
+        range_info["upper-bound"] = range_upper[1]
         partition_info[var_name] = range_info
         partition_list.append(copy.deepcopy(partition_info))
 
     return partition_list
-
-
-
-
 
 
 # def generate_constraint_for_fixed_point(fixed_point_list):
@@ -1003,11 +1076,14 @@ def generate_partition_for_input(constraint_info, partition_value, is_multi_dime
 #     formula = And(path_feasibility, assertion)
 #     return formula
 
+
 def generate_assertion(assertion_temp, klee_dir):
     emitter.normal("\tgenerating extended specification")
     largest_path_condition = None
     max_obs = 0
-    file_list = [f for f in os.listdir(klee_dir) if os.path.isfile(os.path.join(klee_dir, f))]
+    file_list = [
+        f for f in os.listdir(klee_dir) if os.path.isfile(os.path.join(klee_dir, f))
+    ]
     for file_name in file_list:
         if ".smt2" in file_name:
             file_path = os.path.join(klee_dir, file_name)
@@ -1029,14 +1105,20 @@ def generate_assertion(assertion_temp, klee_dir):
     specification_line = assertion_temp[1]
     assertion_text = ""
     for index in range(0, max_obs):
-        assertion_text = assertion_text + declaration_line.replace("obs!0", "obs!" + str(index))
-        assertion_text = assertion_text + specification_line.replace("obs!0", "obs!" + str(index))
+        assertion_text = assertion_text + declaration_line.replace(
+            "obs!0", "obs!" + str(index)
+        )
+        assertion_text = assertion_text + specification_line.replace(
+            "obs!0", "obs!" + str(index)
+        )
     specification_formula = generate_formula(assertion_text)
     return specification_formula, max_obs
 
 
 def generate_extended_patch_formula(patch_formula, path_condition):
-    angelic_count = int(len(re.findall("angelic!(.+?)!0", str(path_condition.serialize()))) / 4)
+    angelic_count = int(
+        len(re.findall("angelic!(.+?)!0", str(path_condition.serialize()))) / 4
+    )
     # if angelic_count == 0:
     #     print("COUNT", angelic_count)
     #     print("PATH", str(path_condition.serialize()))
@@ -1071,7 +1153,9 @@ def generate_extended_patch_formula(patch_formula, path_condition):
                 input_var_postfix = input_var[:-1] + postfix + "|"
             else:
                 input_var_postfix = input_var + postfix
-            substituted_formula_txt = substituted_formula_txt.replace(input_var, input_var_postfix)
+            substituted_formula_txt = substituted_formula_txt.replace(
+                input_var, input_var_postfix
+            )
         formula = generate_formula(substituted_formula_txt)
         formula_list.append(formula)
 
@@ -1083,7 +1167,11 @@ def generate_extended_patch_formula(patch_formula, path_condition):
 
 def generate_program_specification():
     output_dir_path = definitions.DIRECTORY_OUTPUT
-    dir_list = [f for f in os.listdir(output_dir_path) if not os.path.isfile(os.path.join(output_dir_path, f))]
+    dir_list = [
+        f
+        for f in os.listdir(output_dir_path)
+        if not os.path.isfile(os.path.join(output_dir_path, f))
+    ]
     expected_output_list = values.LIST_TEST_OUTPUT
     test_count = len(expected_output_list)
     max_skip_index = (test_count * 2) - 1
@@ -1095,7 +1183,9 @@ def generate_program_specification():
         klee_index = int(dir_name.split("-")[-1])
         # if klee_index <= max_skip_index:
         #     continue
-        file_list = [f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))]
+        file_list = [
+            f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))
+        ]
         for file_name in file_list:
             if ".smt2" in file_name:
                 file_path = os.path.join(dir_path, file_name)

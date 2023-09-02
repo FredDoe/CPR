@@ -7,7 +7,6 @@ from pathlib import Path
 import random
 import operator
 from pysmt.shortcuts import is_sat, Not, And, TRUE
-import pysmt.environment
 from pysmt.fnode import FNode
 
 import app.generator
@@ -23,7 +22,6 @@ from app import (
     extractor,
     smt2,
     distance,
-    configuration,
 )
 
 logger = logging.getLogger(__name__)

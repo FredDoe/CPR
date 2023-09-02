@@ -17,7 +17,7 @@ LD_FLAGS = "-L/CPR/lib -lcpr_runtime  -lkleeRuntest"
 def config_project(project_path, is_llvm, custom_config_command=None):
     emitter.normal("\tconfiguring program")
     dir_command = "cd " + project_path + ";"
-   
+
     config_command = None
     if custom_config_command is not None:
         if custom_config_command == "skip":
@@ -27,12 +27,16 @@ def config_project(project_path, is_llvm, custom_config_command=None):
             if os.path.exists(project_path + "/" + "aclocal.m4"):
                 pre_config_command = "rm aclocal.m4;aclocal"
                 execute_command(pre_config_command)
-                
+
             if CC == "wllvm":
                 custom_config_command = remove_fsanitize(custom_config_command)
                 if "cmake" in custom_config_command:
-                    custom_config_command = custom_config_command.replace("clang", "wllvm")
-                    custom_config_command = custom_config_command.replace("clang++", "wllvm++")
+                    custom_config_command = custom_config_command.replace(
+                        "clang", "wllvm"
+                    )
+                    custom_config_command = custom_config_command.replace(
+                        "clang++", "wllvm++"
+                    )
                 # print(custom_config_command)
             # config_command = "CC=" + CC + " "
             # config_command += "CXX=" + CXX + " "
@@ -46,37 +50,37 @@ def config_project(project_path, is_llvm, custom_config_command=None):
         config_command += "CC=" + CC + " "
         config_command += "CXX=" + CXX + " "
         config_command += "./configure "
-        config_command += "CFLAGS=\"" + C_FLAGS + "\" "
-        config_command += "CXXFLAGS=\"" + CXX_FLAGS + "\""
+        config_command += 'CFLAGS="' + C_FLAGS + '" '
+        config_command += 'CXXFLAGS="' + CXX_FLAGS + '"'
 
     elif os.path.exists(project_path + "/configure.ac"):
         config_command = "autoreconf -i;"
         config_command += "CC=" + CC + " "
         config_command += "CXX=" + CXX + " "
         config_command += "./configure "
-        config_command += "CFLAGS=\"" + C_FLAGS + "\" "
-        config_command += "CXXFLAGS=\"" + CXX_FLAGS + "\""
+        config_command += 'CFLAGS="' + C_FLAGS + '" '
+        config_command += 'CXXFLAGS="' + CXX_FLAGS + '"'
 
     elif os.path.exists(project_path + "/configure.in"):
         config_command = "autoreconf -i;"
         config_command += "CC=" + CC + " "
         config_command += "CXX=" + CXX + " "
         config_command += "./configure "
-        config_command += "CFLAGS=\"" + C_FLAGS + "\" "
-        config_command += "CXXFLAGS=\"" + CXX_FLAGS + "\""
+        config_command += 'CFLAGS="' + C_FLAGS + '" '
+        config_command += 'CXXFLAGS="' + CXX_FLAGS + '"'
 
     elif os.path.exists(project_path + "/configure"):
         config_command = "CC=" + CC + " "
         config_command += "CXX=" + CXX + " "
         config_command += "./configure "
-        config_command += "CFLAGS=\"" + C_FLAGS + "\" "
-        config_command += "CXXFLAGS=\"" + CXX_FLAGS + "\""
+        config_command += 'CFLAGS="' + C_FLAGS + '" '
+        config_command += 'CXXFLAGS="' + CXX_FLAGS + '"'
 
     elif os.path.exists(project_path + "/CMakeLists.txt"):
         config_command = "cmake -DCMAKE_C_COMPILER=" + CC + " "
         config_command += "-DCMAKE_CPP_COMPILER=" + CXX + " "
-        config_command += "-DCMAKE_C_FLAGS=\"" + C_FLAGS + "\" "
-        config_command += "-DCMAKE_CXX_FLAGS=\"" + CXX_FLAGS + "\" . "
+        config_command += '-DCMAKE_C_FLAGS="' + C_FLAGS + '" '
+        config_command += '-DCMAKE_CXX_FLAGS="' + CXX_FLAGS + '" . '
 
     if is_llvm:
         config_command = "LLVM_COMPILER=clang;" + config_command
@@ -110,7 +114,7 @@ def apply_flags(build_command):
         build_command = build_command.replace(c_flags_old, c_flags_new)
     else:
         if c_flags:
-            new_command = "make CFLAGS=\"" + c_flags + "\" "
+            new_command = 'make CFLAGS="' + c_flags + '" '
             build_command = build_command.replace("make ", new_command)
 
     if "LDFLAGS=" in build_command:
@@ -119,7 +123,7 @@ def apply_flags(build_command):
         build_command = build_command.replace(ld_flags_old, ld_flags_new)
     else:
         if ld_flags:
-            new_command = "make LDFLAGS=\"" + ld_flags + "\" "
+            new_command = 'make LDFLAGS="' + ld_flags + '" '
             build_command = build_command.replace("make ", new_command)
 
     if "XCXXFLAGS=" in build_command:
@@ -136,7 +140,7 @@ def apply_flags(build_command):
         build_command = build_command.replace(c_flags_old, c_flags_new)
     else:
         if c_flags:
-            new_command = "make CXXFLAGS=\"" + c_flags + "\" "
+            new_command = 'make CXXFLAGS="' + c_flags + '" '
             build_command = build_command.replace("make ", new_command)
 
     if "XCC=" in build_command:
@@ -171,8 +175,10 @@ def build_project(project_path, build_command=None):
         if values.CONF_BUILD_FLAGS == "disable":
             build_command += "bear make -j`nproc`  "
         else:
-            build_command += "bear make CFLAGS=\"" + C_FLAGS + "\" "
-            build_command += "CXXFLAGS=\"" + CXX_FLAGS + " LDFLAGS=" + LD_FLAGS + "\" -j`nproc` > "
+            build_command += 'bear make CFLAGS="' + C_FLAGS + '" '
+            build_command += (
+                'CXXFLAGS="' + CXX_FLAGS + " LDFLAGS=" + LD_FLAGS + '" -j`nproc` > '
+            )
     else:
         if build_command == "skip":
             emitter.warning("\t[warning] skipping build")
@@ -218,7 +224,7 @@ def build_normal():
 
 def remove_fsanitize(build_command):
     logger.trace(__name__ + ":" + sys._getframe().f_code.co_name, locals())
-    sanitize_group = ['integer', 'address', 'undefined']
+    sanitize_group = ["integer", "address", "undefined"]
     for group in sanitize_group:
         build_command = str(build_command).replace("-fsanitize=" + str(group), "")
     return build_command
@@ -377,5 +383,7 @@ def clean_project(project_path, binary_path):
         clean_command += "; rm CMakeCache.txt"
         clean_command += "; rm -rf CMakeFiles"
         execute_command(clean_command)
-    clean_residues = "cd " + binary_dir_path + ";" + "rm -rf ./patches/*;" + "rm -rf ./klee*"
+    clean_residues = (
+        "cd " + binary_dir_path + ";" + "rm -rf ./patches/*;" + "rm -rf ./klee*"
+    )
     execute_command(clean_residues)

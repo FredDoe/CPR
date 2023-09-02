@@ -1,5 +1,6 @@
 from app import values, emitter
 
+
 def calculate_distance(loc_a, loc_b):
     min_distance = 10000000
     count = -1
@@ -45,5 +46,7 @@ def update_distance_map():
         else:
             values.MAP_LOC_DISTANCE[loc] = latest_dist_map[loc]
 
-    values.MAP_LOC_DISTANCE = {k: v for k, v in sorted(values.MAP_LOC_DISTANCE.items(), key=lambda item: item[1])}
-
+    values.MAP_LOC_DISTANCE = {
+        k: v
+        for k, v in sorted(values.MAP_LOC_DISTANCE.items(), key=lambda item: item[1])
+    }

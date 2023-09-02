@@ -94,10 +94,10 @@ CONF_GENERALIZED_TEST_INPUT = "generalize_test_input:"
 
 # ----------------- KEY DEFINITIONS -------------------
 
-KEY_DURATION_TOTAL = 'run-time'
-KEY_DURATION_BOOTSTRAP = 'bootstrap'
+KEY_DURATION_TOTAL = "run-time"
+KEY_DURATION_BOOTSTRAP = "bootstrap"
 KEY_DURATION_BUILD = "build"
-KEY_DURATION_INITIALIZATION = 'initialization'
+KEY_DURATION_INITIALIZATION = "initialization"
 KEY_DURATION_REPAIR = "repair"
 
 

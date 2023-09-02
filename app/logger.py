@@ -11,26 +11,52 @@ def create():
     log_file_name = "log-" + str(time.time())
     log_file_path = definitions.DIRECTORY_LOG_BASE + "/" + log_file_name
     definitions.FILE_MAIN_LOG = log_file_path
-    with open(definitions.FILE_MAIN_LOG, 'w+') as log_file:
-        log_file.write("[Start] " + values.TOOL_NAME + " started at " + str(datetime.datetime.now()) + "\n")
+    with open(definitions.FILE_MAIN_LOG, "w+") as log_file:
+        log_file.write(
+            "[Start] "
+            + values.TOOL_NAME
+            + " started at "
+            + str(datetime.datetime.now())
+            + "\n"
+        )
     if os.path.exists(definitions.FILE_LAST_LOG):
         os.remove(definitions.FILE_LAST_LOG)
     if os.path.exists(definitions.FILE_ERROR_LOG):
         os.remove(definitions.FILE_ERROR_LOG)
     if os.path.exists(definitions.FILE_COMMAND_LOG):
         os.remove(definitions.FILE_COMMAND_LOG)
-    with open(definitions.FILE_LAST_LOG, 'w+') as last_log:
-        last_log.write("[Start] " + values.TOOL_NAME + " started at " + str(datetime.datetime.now()) + "\n")
-    with open(definitions.FILE_ERROR_LOG, 'w+') as error_log:
-        error_log.write("[Start] " + values.TOOL_NAME + " started at " + str(datetime.datetime.now()) + "\n")
-    with open(definitions.FILE_COMMAND_LOG, 'w+') as command_log:
-        command_log.write("[Start] " + values.TOOL_NAME + " started at " + str(datetime.datetime.now()) + "\n")
+    with open(definitions.FILE_LAST_LOG, "w+") as last_log:
+        last_log.write(
+            "[Start] "
+            + values.TOOL_NAME
+            + " started at "
+            + str(datetime.datetime.now())
+            + "\n"
+        )
+    with open(definitions.FILE_ERROR_LOG, "w+") as error_log:
+        error_log.write(
+            "[Start] "
+            + values.TOOL_NAME
+            + " started at "
+            + str(datetime.datetime.now())
+            + "\n"
+        )
+    with open(definitions.FILE_COMMAND_LOG, "w+") as command_log:
+        command_log.write(
+            "[Start] "
+            + values.TOOL_NAME
+            + " started at "
+            + str(datetime.datetime.now())
+            + "\n"
+        )
 
 
 def store():
     copyfile(definitions.FILE_MAIN_LOG, definitions.DIRECTORY_LOG + "/log-latest")
     if os.path.isfile(definitions.FILE_COMMAND_LOG):
-        copyfile(definitions.FILE_COMMAND_LOG, definitions.DIRECTORY_LOG + "/log-command")
+        copyfile(
+            definitions.FILE_COMMAND_LOG, definitions.DIRECTORY_LOG + "/log-command"
+        )
     if os.path.isfile(definitions.FILE_ERROR_LOG):
         copyfile(definitions.FILE_ERROR_LOG, definitions.DIRECTORY_LOG + "/log-error")
     if os.path.isfile(definitions.FILE_MAKE_LOG):
@@ -40,11 +66,11 @@ def store():
 def log(log_message):
     log_message = "[" + str(time.asctime()) + "]" + log_message
     if "COMMAND" in log_message:
-        with open(definitions.FILE_COMMAND_LOG, 'a') as log_file:
+        with open(definitions.FILE_COMMAND_LOG, "a") as log_file:
             log_file.write(log_message)
-    with open(definitions.FILE_MAIN_LOG, 'a') as log_file:
+    with open(definitions.FILE_MAIN_LOG, "a") as log_file:
         log_file.write(log_message)
-    with open(definitions.FILE_LAST_LOG, 'a') as log_file:
+    with open(definitions.FILE_LAST_LOG, "a") as log_file:
         log_file.write(log_message)
 
 
@@ -82,7 +108,7 @@ def debug(message):
 
 
 def error(message):
-    with open(definitions.FILE_ERROR_LOG, 'a') as last_log:
+    with open(definitions.FILE_ERROR_LOG, "a") as last_log:
         last_log.write(str(message) + "\n")
     message = str(message).strip().lower().replace("[error]", "")
     message = "[ERROR]: " + str(message) + "\n"
@@ -115,13 +141,23 @@ def warning(message):
 
 def end(time_duration, is_error=False):
     output("\nTime duration\n----------------------\n\n")
-    output("Startup: " + str(time_duration[definitions.KEY_DURATION_BOOTSTRAP]) + " minutes")
+    output(
+        "Startup: "
+        + str(time_duration[definitions.KEY_DURATION_BOOTSTRAP])
+        + " minutes"
+    )
     output("Build: " + str(time_duration[definitions.KEY_DURATION_BUILD]) + " minutes")
-    output("Testing: " + str(time_duration[definitions.KEY_DURATION_INITIALIZATION]) + " minutes")
+    output(
+        "Testing: "
+        + str(time_duration[definitions.KEY_DURATION_INITIALIZATION])
+        + " minutes"
+    )
     output("Synthesis: " + str(values.TIME_TO_GENERATE) + " minutes")
     output("Explore: " + format(values.TIME_TO_EXPLORE, ".3f") + " minutes")
     output("Refine: " + format(values.TIME_TO_REDUCE, ".3f") + " minutes")
-    output("Reduce: " + str(time_duration[definitions.KEY_DURATION_REPAIR]) + " minutes")
+    output(
+        "Reduce: " + str(time_duration[definitions.KEY_DURATION_REPAIR]) + " minutes"
+    )
     output("Iteration Count: " + str(values.ITERATION_NO))
     # output("Patch Gen Count: " + str(values.COUNT_PATCH_GEN))
     output("Patch Explored Count: " + str(values.COUNT_PATCHES_EXPLORED))
@@ -146,11 +182,23 @@ def end(time_duration, is_error=False):
     output("Component Count Cust: " + str(values.COUNT_COMPONENTS_CUS))
     output("Gen Limit: " + str(values.DEFAULT_GEN_SEARCH_LIMIT))
     if is_error:
-        output(values.TOOL_NAME + " exited with an error after " + time_duration[
-            definitions.KEY_DURATION_TOTAL] + " minutes")
+        output(
+            values.TOOL_NAME
+            + " exited with an error after "
+            + time_duration[definitions.KEY_DURATION_TOTAL]
+            + " minutes"
+        )
     else:
-        output(values.TOOL_NAME + " finished successfully after " + time_duration[
-            definitions.KEY_DURATION_TOTAL] + " minutes")
-    log("[END] " + values.TOOL_NAME + " ended at  " + str(datetime.datetime.now()) + "\n\n")
-
-
+        output(
+            values.TOOL_NAME
+            + " finished successfully after "
+            + time_duration[definitions.KEY_DURATION_TOTAL]
+            + " minutes"
+        )
+    log(
+        "[END] "
+        + values.TOOL_NAME
+        + " ended at  "
+        + str(datetime.datetime.now())
+        + "\n\n"
+    )

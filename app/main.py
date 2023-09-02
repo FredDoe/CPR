@@ -17,7 +17,6 @@ from app import (
     reader,
     parallel,
     extractor,
-    oracle,
 )
 from app.concolic import run_concrete_execution
 

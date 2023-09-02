@@ -8,7 +8,12 @@ from app import logger, emitter, values, definitions
 import base64
 import hashlib
 import time
-from app.synthesis import program_to_formula, collect_symbols, ComponentSymbol, RuntimeSymbol
+from app.synthesis import (
+    program_to_formula,
+    collect_symbols,
+    ComponentSymbol,
+    RuntimeSymbol,
+)
 
 
 def generate_formula_from_patch(patch):
@@ -34,7 +39,7 @@ def generate_formula_from_patch(patch):
 
 def execute_command(command, show_output=True):
     # Print executed command and execute it in console
-    command = command.encode().decode('ascii', 'ignore')
+    command = command.encode().decode("ascii", "ignore")
     emitter.command(command)
     command = "{ " + command + " ;} 2> " + definitions.FILE_ERROR_LOG
     if not show_output:
@@ -64,13 +69,17 @@ def clean_files():
 
 def backup_file(file_path, backup_name):
     logger.trace(__name__ + ":" + sys._getframe().f_code.co_name, locals())
-    backup_command = "cp " + file_path + " " + definitions.DIRECTORY_BACKUP + "/" + backup_name
+    backup_command = (
+        "cp " + file_path + " " + definitions.DIRECTORY_BACKUP + "/" + backup_name
+    )
     execute_command(backup_command)
 
 
 def restore_file(file_path, backup_name):
     logger.trace(__name__ + ":" + sys._getframe().f_code.co_name, locals())
-    restore_command = "cp " + definitions.DIRECTORY_BACKUP + "/" + backup_name + " " + file_path
+    restore_command = (
+        "cp " + definitions.DIRECTORY_BACKUP + "/" + backup_name + " " + file_path
+    )
     execute_command(restore_command)
 
 
@@ -94,9 +103,11 @@ def build_program(program_path):
         build_clean(program_path)
     program_loc = "/".join(program_path.split("/")[:-1])
     compile_command = "cd " + program_loc + ";"
-    compile_command += "export CPR_CC=/concolic-repair/app/cpr-cc;" \
-                      "CC=\"$CPR_CC\" CXX=\"$CPR_CXX\" make -e;" \
-                      "extract-bc " + program_name
+    compile_command += (
+        "export CPR_CC=/concolic-repair/app/cpr-cc;"
+        'CC="$CPR_CC" CXX="$CPR_CXX" make -e;'
+        "extract-bc " + program_name
+    )
     process = subprocess.Popen([compile_command], stderr=subprocess.PIPE, shell=True)
     (output, error) = process.communicate()
     return int(process.returncode)
@@ -121,8 +132,8 @@ def raise_timeout(signum, frame):
 
 def get_signed_value(bit_vector):
     """
-      This function will generate the signed value for a given bit list
-             bit_vector : list of bits
+    This function will generate the signed value for a given bit list
+           bit_vector : list of bits
     """
     signed_value = 0
     for i in sorted(bit_vector.keys()):
@@ -135,8 +146,8 @@ def get_signed_value(bit_vector):
 
 def get_str_value(bit_vector):
     """
-      This function will generate the string value for a given bit list
-             bit_vector : list of bits
+    This function will generate the string value for a given bit list
+           bit_vector : list of bits
     """
     str_value = ""
     char_list = dict()
@@ -155,8 +166,8 @@ def get_str_value(bit_vector):
 
 def get_byte_string(bit_vector):
     """
-      This function will generate the byte string for a given bit list
-             bit_vector : list of bits
+    This function will generate the byte string for a given bit list
+           bit_vector : list of bits
     """
     str_value = ""
     char_list = dict()
@@ -171,7 +182,7 @@ def get_byte_string(bit_vector):
 
 
 def get_hash(str_value):
-    str_encoded = str(str_value).encode('utf-8')
+    str_encoded = str(str_value).encode("utf-8")
     str_hasher = hashlib.sha1(str_encoded)
     hash_value = base64.urlsafe_b64encode(str_hasher.digest()[:10])
     return hash_value
@@ -179,7 +190,9 @@ def get_hash(str_value):
 
 def check_budget(time_budget):  # TODO implement time budget
     if values.DEFAULT_ITERATION_LIMIT >= 0:
-        if values.ITERATION_NO < values.DEFAULT_ITERATION_LIMIT:  # Only for testing purpose.
+        if (
+            values.ITERATION_NO < values.DEFAULT_ITERATION_LIMIT
+        ):  # Only for testing purpose.
             return False
         else:
             return True
@@ -189,7 +202,7 @@ def check_budget(time_budget):  # TODO implement time budget
             return False
         else:
             time_start = values.CONF_TIME_CHECK
-            duration = float(format((time.time() - time_start) / 60, '.3f'))
+            duration = float(format((time.time() - time_start) / 60, ".3f"))
             if int(duration) > int(time_budget):
                 values.CONF_TIME_CHECK = None
                 return True
@@ -210,10 +223,12 @@ def count_concrete_patches_per_template(abstract_patch):
             partition_concrete_count = 1
             for parameter_name in partition:
                 constraint_info = partition[parameter_name]
-                lower_bound = str(constraint_info['lower-bound'])
-                upper_bound = str(constraint_info['upper-bound'])
+                lower_bound = str(constraint_info["lower-bound"])
+                upper_bound = str(constraint_info["upper-bound"])
                 parameter_dimension = len(range(int(lower_bound), int(upper_bound) + 1))
-                partition_concrete_count = partition_concrete_count * parameter_dimension
+                partition_concrete_count = (
+                    partition_concrete_count * parameter_dimension
+                )
             total_concrete_count = total_concrete_count + partition_concrete_count
     return total_concrete_count
 

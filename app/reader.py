@@ -10,7 +10,7 @@ from pysmt.smtlib.parser import SmtLibParser
 def read_json(file_path):
     json_data = None
     if os.path.isfile(file_path):
-        with open(file_path, 'r') as in_file:
+        with open(file_path, "r") as in_file:
             content = in_file.readline()
             json_data = json.loads(content)
     return json_data
@@ -19,23 +19,23 @@ def read_json(file_path):
 def read_pickle(file_path):
     pickle_object = None
     if os.path.isfile(file_path):
-        with open(file_path, 'rb') as pickle_file:
+        with open(file_path, "rb") as pickle_file:
             pickle_object = pickle.load(pickle_file)
     return pickle_object
 
 
 def collect_symbolic_expression(log_path):
     """
-       This function will read the output log of a klee concolic execution and extract symbolic expressions
-       of variables of interest
+    This function will read the output log of a klee concolic execution and extract symbolic expressions
+    of variables of interest
     """
     # emitter.normal("\textracting symbolic expressions")
     var_expr_map = list()
     if os.path.exists(log_path):
-        with open(log_path, 'r') as trace_file:
+        with open(log_path, "r") as trace_file:
             expr_pair = None
             for line in trace_file:
-                if '[klee:expr]' in line:
+                if "[klee:expr]" in line:
                     line = line.split("[klee:expr] ")[-1]
                     if "[var-type]" in line:
                         continue
@@ -54,24 +54,28 @@ def collect_symbolic_expression(log_path):
 
 def collect_symbolic_path_prefix(log_path, project_path):
     """
-       This function will read the output log of a klee concolic execution and
-       extract the prefix of partial path condition that should be omitted in path generation
+    This function will read the output log of a klee concolic execution and
+    extract the prefix of partial path condition that should be omitted in path generation
     """
     emitter.normal("\textracting prefix of path condition")
     prefix_ppc = ""
     if os.path.exists(log_path):
         source_path = ""
         path_condition = ""
-        with open(log_path, 'r') as trace_file:
+        with open(log_path, "r") as trace_file:
             for line in trace_file:
-                if '[path:ppc]' in line:
+                if "[path:ppc]" in line:
                     if project_path in line:
                         break
                     else:
-                        source_path = str(line.replace("[path:ppc]", '')).split(" : ")[0]
+                        source_path = str(line.replace("[path:ppc]", "")).split(" : ")[
+                            0
+                        ]
                         source_path = source_path.strip()
                         source_path = os.path.abspath(source_path)
-                        path_condition = str(line.replace("[path:ppc]", '')).split(" : ")[1]
+                        path_condition = str(line.replace("[path:ppc]", "")).split(
+                            " : "
+                        )[1]
                         continue
 
                 if source_path:
@@ -86,8 +90,8 @@ def collect_symbolic_path_prefix(log_path, project_path):
 
 def collect_symbolic_path(log_path, project_path):
     """
-       This function will read the output log of a klee concolic execution and
-       extract the partial path conditions
+    This function will read the output log of a klee concolic execution and
+    extract the partial path conditions
     """
     emitter.normal("\textracting path conditions")
     ppc_list = list()
@@ -95,14 +99,18 @@ def collect_symbolic_path(log_path, project_path):
     if os.path.exists(log_path):
         source_path = ""
         path_condition = ""
-        with open(log_path, 'r') as trace_file:
+        with open(log_path, "r") as trace_file:
             for line in trace_file:
-                if '[path:ppc]' in line:
+                if "[path:ppc]" in line:
                     if project_path in line or definitions.DIRECTORY_LIB in line:
-                        source_path = str(line.replace("[path:ppc]", '')).split(" : ")[0]
+                        source_path = str(line.replace("[path:ppc]", "")).split(" : ")[
+                            0
+                        ]
                         source_path = source_path.strip()
                         source_path = os.path.abspath(source_path)
-                        path_condition = str(line.replace("[path:ppc]", '')).split(" : ")[1]
+                        path_condition = str(line.replace("[path:ppc]", "")).split(
+                            " : "
+                        )[1]
                         continue
                 if source_path:
                     if "(exit)" not in line:
@@ -122,17 +130,17 @@ def collect_symbolic_path(log_path, project_path):
 
 def collect_trace(file_path, project_path):
     """
-       This function will read the output log of a klee concolic execution and
-       extract the instruction trace
+    This function will read the output log of a klee concolic execution and
+    extract the instruction trace
     """
     emitter.normal("\textracting instruction trace")
     list_trace = list()
     if os.path.exists(file_path):
-        with open(file_path, 'r') as trace_file:
+        with open(file_path, "r") as trace_file:
             for line in trace_file:
-                if '[klee:trace]' in line:
+                if "[klee:trace]" in line:
                     if project_path in line:
-                        trace_line = str(line.replace("[klee:trace] ", ''))
+                        trace_line = str(line.replace("[klee:trace] ", ""))
                         trace_line = trace_line.strip()
                         source_path, line_number = trace_line.split(":")
                         source_path = os.path.abspath(source_path)
@@ -164,17 +172,19 @@ def collect_trace(file_path, project_path):
 
 def collect_symbolic_path_loc(log_path, project_path):
     """
-       This function will read the output log of a klee concolic execution and
-       extract the partial path condition insert locations (i.e. control location)
+    This function will read the output log of a klee concolic execution and
+    extract the partial path condition insert locations (i.e. control location)
     """
     emitter.normal("\textracting path conditions")
     ppc_loc_list = list()
     if os.path.exists(log_path):
-        with open(log_path, 'r') as trace_file:
+        with open(log_path, "r") as trace_file:
             for line in trace_file:
-                if '[path:ppc]' in line:
+                if "[path:ppc]" in line:
                     if project_path in line or definitions.DIRECTORY_LIB in line:
-                        source_path = str(line.replace("[path:ppc]", '')).split(" : ")[0]
+                        source_path = str(line.replace("[path:ppc]", "")).split(" : ")[
+                            0
+                        ]
                         source_path = source_path.strip()
                         source_path = os.path.abspath(source_path)
                         ppc_loc_list.append(source_path)
@@ -184,14 +194,14 @@ def collect_symbolic_path_loc(log_path, project_path):
 def collect_concretized_bytes(log_path):
     concretized_info = dict()
     if os.path.exists(log_path):
-        with open(log_path, 'r') as trace_file:
+        with open(log_path, "r") as trace_file:
             for read_line in trace_file:
                 if "[concretizing]" in read_line:
                     read_line = read_line.replace("[concretizing] ", "")
                     if "A-data" in read_line:
                         if "A-data" not in concretized_info:
                             concretized_info["A-data"] = set()
-                        index = int(read_line.split("[")[1].replace("]",""))
+                        index = int(read_line.split("[")[1].replace("]", ""))
                         concretized_info["A-data"].add(index)
     return concretized_info
 
@@ -199,21 +209,23 @@ def collect_concretized_bytes(log_path):
 def collect_bytes_from_smt2(file_path):
     index_list = list()
     if os.path.exists(file_path):
-        with open(file_path, 'r') as smt2_file:
+        with open(file_path, "r") as smt2_file:
             str_txt = smt2_file.readlines()
         str_txt = "".join(str_txt)
-        index_list = list(set(re.findall("\(select  A-data \(\_ bv(.+?) 32\) ", str_txt)))
+        index_list = list(
+            set(re.findall("\(select  A-data \(\_ bv(.+?) 32\) ", str_txt))
+        )
     return sorted(index_list)
 
 
 def collect_crash_point(trace_file_path):
     """
-        This function will read the output log of a klee concolic execution and
-        extract the location of the crash instruction
-     """
+    This function will read the output log of a klee concolic execution and
+    extract the location of the crash instruction
+    """
     crash_location = ""
     if os.path.exists(trace_file_path):
-        with open(trace_file_path, 'r') as trace_file:
+        with open(trace_file_path, "r") as trace_file:
             for read_line in trace_file:
                 if "KLEE: ERROR:" in read_line:
                     read_line = read_line.replace("KLEE: ERROR: ", "")
@@ -224,12 +236,12 @@ def collect_crash_point(trace_file_path):
 
 def collect_exploit_return_code(output_file_path):
     """
-        This function will read the output log of a program execution
-        and extract the exit code of the program
+    This function will read the output log of a program execution
+    and extract the exit code of the program
     """
     return_code = ""
     if os.path.exists(output_file_path):
-        with open(output_file_path, 'r') as output_file:
+        with open(output_file_path, "r") as output_file:
             for read_line in output_file.readlines():
                 if "RETURN CODE:" in read_line:
                     read_line = read_line.replace("RETURN CODE: ", "")
@@ -240,27 +252,27 @@ def collect_exploit_return_code(output_file_path):
 
 def collect_exploit_output(output_file_path):
     """
-        This function will read the output log of a program execution
-        and extract the output text
+    This function will read the output log of a program execution
+    and extract the output text
     """
     output = ""
     if os.path.exists(output_file_path):
-        with open(output_file_path, 'r') as output_file:
+        with open(output_file_path, "r") as output_file:
             output = output_file.readlines()
     return output
 
 
 def collect_stack_info(trace_file_path):
     """
-        This function will read the output log of a klee concolic execution
-        and extract any stack information avail for error exits
+    This function will read the output log of a klee concolic execution
+    and extract any stack information avail for error exits
     """
     stack_map = dict()
     if os.path.exists(trace_file_path):
-        with open(trace_file_path, 'r') as trace_file:
+        with open(trace_file_path, "r") as trace_file:
             is_stack = False
             for read_line in trace_file:
-                if is_stack and '#' in read_line:
+                if is_stack and "#" in read_line:
                     if " at " in read_line:
                         read_line, source_path = str(read_line).split(" at ")
                         source_path, line_number = source_path.split(":")
@@ -277,7 +289,7 @@ def collect_stack_info(trace_file_path):
 def read_bit_length(log_file_path):
     bit_length_list = dict()
     if os.path.exists(log_file_path):
-        with open(log_file_path, 'r') as log_file:
+        with open(log_file_path, "r") as log_file:
             line_list = log_file.readlines()
             var_name = ""
             var_length = 0
@@ -298,7 +310,7 @@ def read_bit_length(log_file_path):
 def collect_specification(spec_file_path):
     spec_lines = list()
     if os.path.exists(spec_file_path):
-        with open(spec_file_path, 'r') as spec_file:
+        with open(spec_file_path, "r") as spec_file:
             spec_lines = spec_file.readlines()
     return spec_lines
 
@@ -306,10 +318,14 @@ def collect_specification(spec_file_path):
 def read_patch_list(dir_patch):
     patch_list = []
     if os.path.isdir(dir_patch):
-        file_list = [f for f in os.listdir(dir_patch) if os.path.isfile(os.path.join(dir_patch, f))]
+        file_list = [
+            f
+            for f in os.listdir(dir_patch)
+            if os.path.isfile(os.path.join(dir_patch, f))
+        ]
         for patch_path in file_list:
             if ".patch" in patch_path:
                 with open(patch_path, "r") as p_file:
-                    patch_line = p_file.readline().split("---> ")[-1].replace("\"", "")
+                    patch_line = p_file.readline().split("---> ")[-1].replace('"', "")
                     patch_list.append(patch_line)
     return patch_list

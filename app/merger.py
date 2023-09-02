@@ -8,19 +8,36 @@ def get_sorted_space(partition_list):
     dim_count = len(dimension_list)
     merged_space = None
     if dim_count == 1:
-        merged_space = sorted(partition_list, key=lambda x: x[dimension_list[0]]['lower-bound'])
+        merged_space = sorted(
+            partition_list, key=lambda x: x[dimension_list[0]]["lower-bound"]
+        )
     elif dim_count == 2:
-        merged_space = sorted(partition_list, key=lambda x: (x[dimension_list[0]]['lower-bound'],
-                                                             x[dimension_list[1]]['lower-bound']))
+        merged_space = sorted(
+            partition_list,
+            key=lambda x: (
+                x[dimension_list[0]]["lower-bound"],
+                x[dimension_list[1]]["lower-bound"],
+            ),
+        )
     elif dim_count == 3:
-        merged_space = sorted(partition_list, key=lambda x: (x[dimension_list[0]]['lower-bound'],
-                                                             x[dimension_list[1]]['lower-bound'],
-                                                             x[dimension_list[2]]['lower-bound']))
+        merged_space = sorted(
+            partition_list,
+            key=lambda x: (
+                x[dimension_list[0]]["lower-bound"],
+                x[dimension_list[1]]["lower-bound"],
+                x[dimension_list[2]]["lower-bound"],
+            ),
+        )
     elif dim_count == 4:
-        merged_space = sorted(partition_list, key=lambda x: (x[dimension_list[0]]['lower-bound'],
-                                                             x[dimension_list[1]]['lower-bound'],
-                                                             x[dimension_list[2]]['lower-bound'],
-                                                             x[dimension_list[3]]['lower-bound']))
+        merged_space = sorted(
+            partition_list,
+            key=lambda x: (
+                x[dimension_list[0]]["lower-bound"],
+                x[dimension_list[1]]["lower-bound"],
+                x[dimension_list[2]]["lower-bound"],
+                x[dimension_list[3]]["lower-bound"],
+            ),
+        )
     else:
         utilities.error_exit("unhandled sorting of multi-dimensional space")
     return merged_space
@@ -44,10 +61,16 @@ def merge_space(partition_list, path_condition, specification):
             dimension_list = list(merged_partition.keys())
             dimension_name = dimension_list[0]
             if "const_" in dimension_name:
-                partition_constraints = smt2.generate_constraint_for_patch_partition(merged_partition)
+                partition_constraints = smt2.generate_constraint_for_patch_partition(
+                    merged_partition
+                )
             else:
-                partition_constraints = smt2.generate_constraint_for_input_partition(merged_partition)
-            if is_unsat(And(partition_constraints, And(path_condition, Not(specification)))):
+                partition_constraints = smt2.generate_constraint_for_input_partition(
+                    merged_partition
+                )
+            if is_unsat(
+                And(partition_constraints, And(path_condition, Not(specification)))
+            ):
                 insert_index = merged_space.index(partition_a)
                 merged_space.remove(partition_a)
                 merged_space.remove(partition_b)
@@ -65,14 +88,20 @@ def merge_two_partitions(partition_a, partition_b):
     dimension_list = list(partition_a.keys())
     merged_partition = dict()
     for dimension_name in dimension_list:
-        dimension_a = partition_a[dimension_name]['lower-bound'], partition_a[dimension_name]['upper-bound']
-        dimension_b = partition_b[dimension_name]['lower-bound'], partition_b[dimension_name]['upper-bound']
+        dimension_a = (
+            partition_a[dimension_name]["lower-bound"],
+            partition_a[dimension_name]["upper-bound"],
+        )
+        dimension_b = (
+            partition_b[dimension_name]["lower-bound"],
+            partition_b[dimension_name]["upper-bound"],
+        )
         merged_dimension = merge_two_dimensions(dimension_a, dimension_b)
         if merged_dimension is None:
             return None
         merged_partition[dimension_name] = dict()
-        merged_partition[dimension_name]['lower-bound'] = merged_dimension[0]
-        merged_partition[dimension_name]['upper-bound'] = merged_dimension[1]
+        merged_partition[dimension_name]["lower-bound"] = merged_dimension[0]
+        merged_partition[dimension_name]["upper-bound"] = merged_dimension[1]
     return merged_partition
 
 

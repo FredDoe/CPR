@@ -8,7 +8,6 @@ from pathlib import Path
 from pysmt.smtlib.parser import SmtLibParser
 
 
-
 def extract_var_relationship(var_expr_map):
     # preserve user-input : program variable relationship
     # include program variable names for program specification
@@ -18,13 +17,23 @@ def extract_var_relationship(var_expr_map):
         prog_var_name, prog_var_expr = expr_map[0]
         angelic_var_name, angelic_var_expr = expr_map[1]
         prog_dependent_var_list = set(re.findall("\(select (.+?) \(_ ", prog_var_expr))
-        angelic_dependent_var_list = set(re.findall("\(select (.+?) \(_ ", angelic_var_expr))
-        dependent_var_list = set(list(prog_dependent_var_list) + list(angelic_dependent_var_list))
+        angelic_dependent_var_list = set(
+            re.findall("\(select (.+?) \(_ ", angelic_var_expr)
+        )
+        dependent_var_list = set(
+            list(prog_dependent_var_list) + list(angelic_dependent_var_list)
+        )
 
         str_script = "(set-logic QF_AUFBV )\n"
-        str_script += "(declare-fun " + prog_var_name + " () (Array (_ BitVec 32) (_ BitVec 8) ) )\n"
+        str_script += (
+            "(declare-fun "
+            + prog_var_name
+            + " () (Array (_ BitVec 32) (_ BitVec 8) ) )\n"
+        )
         for var_d in dependent_var_list:
-            str_script += "(declare-fun " + var_d + " () (Array (_ BitVec 32) (_ BitVec 8) ) )\n"
+            str_script += (
+                "(declare-fun " + var_d + " () (Array (_ BitVec 32) (_ BitVec 8) ) )\n"
+            )
         str_script += "(assert (= " + prog_var_expr + " " + angelic_var_expr + " ))\n"
         str_script += "(assert (= " + prog_var_name + " " + angelic_var_name + " ))\n"
         str_script += "(exit)\n"
@@ -105,7 +114,9 @@ def extract_largest_path_condition(dir_path):
     largest_path_condition = None
     pc_formula_len = 0
     emitter.normal("\textracting largest symbolic path")
-    file_list = [f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))]
+    file_list = [
+        f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))
+    ]
     for file_name in file_list:
         if ".smt2" in file_name:
             file_path = os.path.join(dir_path, file_name)
@@ -126,8 +137,8 @@ def extract_child_expressions(patch_tree):
     if "right" not in patch_tree:
         child_list = [patch_tree]
     else:
-        right_child = children['right']
-        left_child = children['left']
+        right_child = children["right"]
+        left_child = children["left"]
         if cid in ["logical-or", "logical-and"]:
             right_list = extract_child_expressions(right_child)
             left_list = extract_child_expressions(left_child)
