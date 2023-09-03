@@ -137,9 +137,6 @@ def reduce(
         return patch_list
     expr_log_path = str(path_to_concolic_exec_result) + "/expr.log"
     path_condition = extractor.extract_formula_from_file(path_constraint_file_path)
-    # valid_input_space = parallel.partition_input_space(path_condition, assertion)
-    # if valid_input_space:
-    #     valid_input_space = merger.merge_space(valid_input_space, path_condition, assertion)
     values.VALID_INPUT_SPACE = None
     count_patches_start = utilities.count_concrete_patches(patch_list)
     if values.DEFAULT_PATCH_TYPE == values.OPTIONS_PATCH_TYPE[1]:
@@ -248,8 +245,6 @@ def rank_patches(patch_list):
         if values.LIST_PATCH_UNDERAPPROX_CHECK[patch_index]:
             under_approx_score = 0
         patch_len = 10000 - len(patch_constraint_str)
-        # if oracle.is_always_true(patch) or oracle.is_always_false(patch):
-        #     patch_len = 10000 - 1
         patch_count = 1000 - utilities.count_concrete_patches_per_template(patch)
         filtered_list.append(
             (
@@ -272,7 +267,6 @@ def run(project_path, program_path):
     emitter.title("Repairing Program")
     ## Generate all possible solutions by running the synthesizer.
     time_check = time.time()
-    # satisfied = utilities.check_budget(values.DEFAULT_TIME_DURATION)
     initial_patch_list = generator.generate_patch_set(project_path)
     result_list = parallel.remove_duplicate_patches_parallel(initial_patch_list)
     filtered_patch_list = []
@@ -405,17 +399,6 @@ def run_cegis(program_path, project_path, patch_list):
             )
     duration = (time.time() - time_check) / 60
     values.TIME_TO_REDUCE = duration
-    # patch_list = [patch]
-    # definitions.FILE_PATCH_SET = definitions.DIRECTORY_OUTPUT + "/patch-set-cegis"
-    # writer.write_patch_set(patch_list, definitions.FILE_PATCH_SET)
-    # patch = next(patch_generator, None)
-    # while patch is not None:
-    #     patch_formula = app.generator.generate_formula_from_patch(patch)
-    #     patch_formula_extended = generator.generate_extended_patch_formula(patch_formula, largest_path_condition)
-    #     violation_check = And(complete_specification, patch_formula_extended)
-    #     if is_unsat(violation_check):
-    #         count_final = count_final + 1
-    #     patch = next(patch_generator, None)
     emitter.emit_patch(patch, message="\tfinal patch: ")
     values.COUNT_PATCH_END = values.COUNT_PATCH_START - count_throw
 
@@ -456,8 +439,6 @@ def run_cpr(program_path, patch_list):
             seed_id = 0
             for argument_list in test_input_list:
                 seed_id = seed_id + 1
-                # if seed_id not in values.USEFUL_SEED_ID_LIST:
-                #     continue
                 time_check = time.time()
                 poc_path = None
                 iteration = iteration + 1
@@ -628,7 +609,6 @@ def run_cpr(program_path, patch_list):
                 emitter.warning("\t\t[warning] no more paths to generate new input")
                 break
             assert gen_arg_list  # there should be a concrete input
-            # print(">> new input: " + str(gen_arg_list))
 
             ## Concolic execution of concrete input and patch candidate to retrieve path constraint.
             exit_code = run_concolic_execution(
