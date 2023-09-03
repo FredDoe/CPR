@@ -60,7 +60,7 @@ def shutdown(signum, frame):
 
 
 def bootstrap(arg_list):
-    emitter.title("Starting " + values.TOOL_NAME + " (CardioPulmonary Resuscitation) ")
+    emitter.title("Starting " + values.TOOL_NAME + " (Concolic Program Repair) ")
     emitter.sub_title("Loading Configurations")
     configuration.read_conf(arg_list)
     configuration.read_conf_file()
@@ -69,7 +69,6 @@ def bootstrap(arg_list):
     configuration.collect_test_list()
     configuration.collect_seed_list()
 
-    # configuration.collect_var_mapping()
     configuration.load_component_list()
     configuration.print_configuration()
     values.CONF_ARG_PASS = True
@@ -79,12 +78,12 @@ def bootstrap(arg_list):
 def initialize():
     emitter.title("Initializing Program")
     test_input_list = values.LIST_TEST_INPUT
-    second_var_list = list()
     output_dir_path = definitions.DIRECTORY_OUTPUT
     emitter.sub_title("Running Test-Suite")
     test_case_id = 0
     count_seeds = len(values.LIST_SEED_INPUT)
     count_inputs = len(test_input_list)
+
     for argument_list in test_input_list[: count_inputs - count_seeds]:
         print_argument_list = app.configuration.extract_input_arg_list(argument_list)
         generalized_arg_list = []
@@ -120,11 +119,10 @@ def initialize():
             program_path + ".bc", argument_list, True, klee_out_dir
         )
         assert exit_code == 0
+
         # set location of bug/crash
         values.IS_CRASH = False
         latest_crash_loc = reader.collect_crash_point(values.FILE_MESSAGE_LOG)
-        # if oracle.is_loc_in_trace(values.CONF_LOC_PATCH):
-        #     values.USEFUL_SEED_ID_LIST.append(test_case_id)
         if latest_crash_loc:
             values.IS_CRASH = True
             emitter.success(
@@ -197,7 +195,6 @@ def main():
         logger.error(traceback.format_exc())
     finally:
         # Final running time and exit message
-        # os.system("ps -aux | grep 'python' | awk '{print $2}' | xargs kill -9")
         total_duration = format((time.time() - start_time) / 60, ".3f")
         time_info[definitions.KEY_DURATION_TOTAL] = str(total_duration)
         emitter.end(time_info, is_error)

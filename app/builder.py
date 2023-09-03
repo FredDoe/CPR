@@ -37,13 +37,9 @@ def config_project(project_path, is_llvm, custom_config_command=None):
                     custom_config_command = custom_config_command.replace(
                         "clang++", "wllvm++"
                     )
-                # print(custom_config_command)
-            # config_command = "CC=" + CC + " "
-            # config_command += "CXX=" + CXX + " "
             config_command = custom_config_command
             if "--cc=" in config_command:
                 config_command = config_command.replace("--cc=clang-7", "--cc=" + CC)
-            # print(config_command)
 
     elif os.path.exists(project_path + "/autogen.sh"):
         config_command = "./autogen.sh;"
@@ -230,68 +226,6 @@ def remove_fsanitize(build_command):
     return build_command
 
 
-# def build_instrumented_code(source_directory):
-#     logger.trace(__name__ + ":" + sys._getframe().f_code.co_name, locals())
-#     emitter.normal("\t\t\tbuilding instrumented code")
-#     execute_command("export LLVM_COMPILER=clang")
-#     global CXX_FLAGS, C_FLAGS, CC, CXX
-#     CC = "wllvm"
-#     CXX = "wllvm++"
-#     CXX_FLAGS = "'-g -O0 -static -DNDEBUG '"
-#     C_FLAGS = "'-g -O0 -static  -L/klee/build/lib -lkleeRuntest'"
-#     LD_FLAGS = "'-L/klee/build/lib -lkleeRuntest'"
-#
-#     if os.path.exists(source_directory + "/" + "aclocal.m4"):
-#         pre_config_command = "cd " + source_directory + ";"
-#         pre_config_command += "rm aclocal.m4;aclocal"
-#         execute_command(pre_config_command)
-#
-#     elif os.path.exists(source_directory + "/autogen.sh"):
-#         pre_config_command = "./autogen.sh"
-#         execute_command(pre_config_command)
-#
-#     if os.path.exists(source_directory + "/" + "CMakeCache.txt"):
-#         config_command = "cd " + source_directory + ";"
-#         config_command += "cmake -DCMAKE_EXE_LINKER_FLAGS=" + LD_FLAGS + " ."
-#         execute_command(config_command)
-#
-#     build_command = "cd " + source_directory + ";"
-#     custom_build_command = ""
-#     if (values.PATH_A in source_directory) or (values.PATH_B in source_directory):
-#         if values.BUILD_COMMAND_A is not None:
-#             custom_build_command = values.BUILD_COMMAND_A
-#
-#     if values.PATH_C in source_directory:
-#         if values.BUILD_COMMAND_C is not None:
-#             custom_build_command = values.BUILD_COMMAND_C
-#
-#     # print("custom command is " + custom_build_command)
-#
-#     if not custom_build_command:
-#         build_command += "make CFLAGS=" + C_FLAGS + " "
-#         build_command += "CXXFLAGS=" + CXX_FLAGS + " > " + definitions.FILE_MAKE_LOG
-#     else:
-#         if not os.path.isfile(source_directory + "/compile_commands.json"):
-#             custom_build_command = custom_build_command.replace("make", "bear make")
-#         build_command = remove_fsanitize(build_command)
-#         build_command_with_flags = apply_flags(custom_build_command)
-#         build_command += build_command_with_flags
-#
-#     # print(build_command)
-#     ret_code = execute_command(build_command)
-#     if int(ret_code) == 2:
-#         # TODO: check only upto common directory
-#         while source_directory != "" and ret_code != "0":
-#             build_command = build_command.replace(source_directory, "???")
-#             source_directory = "/".join(source_directory.split("/")[:-1])
-#             build_command = build_command.replace("???", source_directory)
-#             ret_code = execute_command(build_command)
-#
-#     if int(ret_code) != 0:
-#         emitter.error(build_command)
-#         error_exit("BUILD FAILED!!\nExit Code: " + str(ret_code))
-
-
 def build_verify(project_path):
     global CC, CXX, CXX_FLAGS, C_FLAGS, LD_FLAGS
     emitter.sub_sub_title("building projects")
@@ -354,7 +288,6 @@ def restore_project(project_path):
         restore_command += "hg update --clean; hg st -un0 | xargs -0 rm"
     else:
         return
-    # print(restore_command)
     execute_command(restore_command)
 
 
@@ -368,7 +301,6 @@ def soft_restore_project(project_path):
         restore_command += "hg update --clean"
     else:
         return
-    # print(restore_command)
     execute_command(restore_command)
 
 

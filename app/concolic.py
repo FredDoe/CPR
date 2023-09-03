@@ -36,23 +36,6 @@ list_path_inprogress = list()
 count_discovered = 0
 
 
-# def generate_new_symbolic_paths(constraint_list):
-#     """
-#     This function will generate N number of new paths by negating each branch condition at a given branch location
-#            constraint_list : a dictionary containing the constraints at each branch location
-#     """
-#     new_path_list = dict()
-#     for chosen_control_loc in constraint_list:
-#         chosen_constraint_list_at_loc = constraint_list[chosen_control_loc]
-#         for chosen_constraint in chosen_constraint_list_at_loc:
-#
-#     if check_path_feasibility(new_path):
-#         if chosen_control_loc not in new_path_list:
-#             new_path_list[chosen_control_loc] = set()
-#         new_path_list[chosen_control_loc].add(new_path)
-#     return new_path_list
-
-
 def select_nearest_control_loc():
     selection = None
     control_loc_list = numpy.array(list_path_inprogress)[:, 0]
@@ -136,9 +119,6 @@ def select_new_path_condition():
 
 
 def select_patch_constraint_for_input(patch_list, selected_new_path):
-    # relationship = extractor.extract_var_relationship(var_expr_map)
-    # relationship = TRUE
-    # selected_new_path = And(selected_new_path, relationship)
     result_list = parallel.validate_input_generation(patch_list, selected_new_path)
     sorted_result_list = sorted(result_list, key=operator.itemgetter(1))
     filtered_patch_list = list()
@@ -149,8 +129,6 @@ def select_patch_constraint_for_input(patch_list, selected_new_path):
             filtered_patch_list.append(selected_patch)
 
     if not filtered_patch_list:
-        # emitter.note("\t\tCount paths explored: " + str(len(list_path_explored)))
-        # emitter.note("\t\tCount paths remaining: " + str(len(list_path_detected)))
         return None
 
     if values.DEFAULT_SELECTION_STRATEGY == "deterministic":
@@ -171,7 +149,6 @@ def select_patch_constraint_for_input(patch_list, selected_new_path):
         parameter_constraint = smt2.generate_constraint_for_patch_space(patch_space)
         if parameter_constraint:
             patch_space_constraint = And(patch_formula_extended, parameter_constraint)
-    # add patch constraint and user-input->prog-var relationship
     return patch_space_constraint
 
 
@@ -184,14 +161,9 @@ def select_new_input(patch_list=None):
     logger.info("generating new input for new path")
     global list_path_explored, list_path_inprogress, count_discovered
 
-    # input_file_byte_list = list()
-    # input_file_stat_byte_list = list()
-
     generated_path_list = values.LIST_GENERATED_PATH
     var_expr_map = reader.collect_symbolic_expression(values.FILE_EXPR_LOG)
 
-    # generated_path_list = generate_new_symbolic_paths(constraint_list)
-    # list_path_explored = list(set(list_path_explored + current_path_list))
     selected_patch = None
     patch_constraint = TRUE
     new_path_count = 0
@@ -310,20 +282,10 @@ def run_concolic_execution(
     os.chdir(directory_path)
     binary_name = str(program).split("/")[-1]
     input_argument = ""
-    # argument_list = str(argument_str).split(" ")
     for argument in argument_list:
         index = list(argument_list).index(argument)
         if "$POC" in argument:
             file_path = values.FILE_POC_GEN
-            # if "_" in argument:
-            #     file_index = "_".join(str(argument).split("_")[1:])
-            #     file_path = values.LIST_TEST_FILES[file_index]
-            # else:
-            #     file_path = values.CONF_PATH_POC
-            #     if values.FILE_POC_GEN:
-            #         file_path = values.FILE_POC_GEN
-            #     elif values.FILE_POC_SEED:
-            #         file_path = values.FILE_POC_SEED
             concrete_file = open(file_path, "rb")
             bit_size = os.fstat(concrete_file.fileno()).st_size
             input_argument += " A --sym-files 1 " + str(bit_size) + " "
@@ -434,52 +396,6 @@ def run_concolic_execution(
     return return_code
 
 
-#
-# def run_symbolic_execution(program, argument_list, print_output=False):
-#     """
-#     This function will execute the program in symbolic mode using the initial test case
-#         program: the absolute path of the bitcode of the program
-#         argument_list : a list containing each argument in the order that should be fed to the program
-#     """
-#     logger.info("running symbolic execution")
-#
-#     global File_Log_Path
-#     current_dir = os.getcwd()
-#     directory_path = "/".join(str(program).split("/")[:-1])
-#     emitter.debug("changing directory:" + directory_path)
-#     project_path = values.CONF_PATH_PROJECT
-#     os.chdir(directory_path)
-#     binary_name = str(program).split("/")[-1]
-#     emitter.normal("\texecuting klee in concolic mode")
-#     runtime_lib_path = definitions.DIRECTORY_LIB + "/libcpr_runtime.bca"
-#     input_argument = ""
-#     for argument in argument_list:
-#         if "$POC" in argument:
-#             argument = values.CONF_PATH_POC
-#         input_argument += " " + str(argument)
-#
-#     klee_command = "/klee/build-origin/bin/klee " \
-#                    "--posix-runtime " \
-#                    "--libc=uclibc " \
-#                    "--write-smt2s " \
-#                    "--search=dfs " \
-#                    "-no-exit-on-error " \
-#                    + "--external-calls=all " \
-#                    + "--link-llvm-lib={0} " .format(runtime_lib_path) \
-#                    + "--max-time={0} ".format(values.DEFAULT_TIMEOUT_KLEE_CEGIS) \
-#                    + "--max-forks {0} ".format(values.DEFAULT_MAX_FORK_CEGIS) \
-#                    + values.CONF_KLEE_FLAGS + " " \
-#                    + "{0} ".format(binary_name) \
-#                    + input_argument
-#
-#     if not print_output:
-#         klee_command += " > " + File_Log_Path + " 2>&1 "
-#     return_code = utilities.execute_command(klee_command)
-#     emitter.debug("changing directory:" + current_dir)
-#     os.chdir(current_dir)
-#     return return_code
-
-
 def run_concrete_execution(
     program, argument_list, print_output=False, klee_out_dir=None
 ):
@@ -503,13 +419,6 @@ def run_concrete_execution(
     for argument in argument_list:
         if "$POC" in argument:
             argument = values.FILE_POC_GEN
-        #     if "_" in argument:
-        #         file_index = "_".join(str(argument).split("_")[1:])
-        #         argument = values.LIST_TEST_FILES[file_index]
-        #     else:
-        #         argument = values.CONF_PATH_POC
-        #         if values.FILE_POC_GEN:
-        #             argument = values.FILE_POC_GEN
         input_argument += " " + str(argument)
     if klee_out_dir:
         klee_command = "klee --output-dir=" + str(klee_out_dir) + " "
@@ -556,28 +465,6 @@ def run_concrete_execution(
         )
 
     return return_code
-
-
-#
-# def run_concolic_exploration(program, argument_list, second_var_list):
-#     """
-#     This function will explore all possible paths in a program provided one single test case
-#         program: the absolute path of the bitcode of the program
-#         argument_list : a list containing each argument in the order that should be fed to the program
-#         second_var_list: a list of tuples where a tuple is (var identifier, var size, var value)
-#     """
-#     logger.info("running concolic exploration")
-#     global list_path_explored, list_path_inprogress
-#     run_concolic_execution(program, argument_list, second_var_list, print_output=False)
-#     is_initial = True
-#     path_count = 1
-#     while list_path_inprogress or is_initial:
-#         is_initial = False
-#         path_count = path_count + 1
-#         gen_arg_list, gen_var_list = generator.generate_new_input(argument_list, second_var_list)
-#         run_concolic_execution(program, gen_arg_list, gen_var_list)
-#
-#     print("Explored {0} number of paths".format(path_count))
 
 
 def run_concolic_exploration(program_path, patch_list):
@@ -793,10 +680,3 @@ def check_infeasible_paths(patch_list):
     emitter.highlight(
         "\ttotal infeasible: " + str(len(list_path_infeasible)) + " path(s)"
     )
-
-
-# def symbolic_exploration(program_path):
-#     argument_list = values.ARGUMENT_LIST
-#     second_var_list = values.SECOND_VAR_LIST
-#     exit_code = run_symbolic_execution(program_path + ".bc", argument_list, second_var_list)
-#     assert exit_code == 0
