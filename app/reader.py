@@ -2,7 +2,7 @@ import json
 import pickle
 import re
 from app import emitter, definitions, values
-from six.moves import cStringIO
+from six import moves
 import os
 from pysmt.smtlib.parser import SmtLibParser
 
@@ -123,7 +123,7 @@ def collect_symbolic_path(log_path, project_path):
     # constraints['last-sym-path'] = last_sym_path
     # print(constraints.keys())
     parser = SmtLibParser()
-    script = parser.get_script(cStringIO(last_sym_path))
+    script = parser.get_script(moves.cStringIO(last_sym_path))
     formula = script.get_last_formula()
     return ppc_list, formula
 

@@ -11,7 +11,7 @@ from app.synthesis import (
 )
 from pathlib import Path
 from typing import List, Dict
-from six.moves import cStringIO
+from six import moves
 from pysmt.shortcuts import Not, And, Or
 import os
 from pysmt.smtlib.parser import SmtLibParser
@@ -210,7 +210,7 @@ def generate_flipped_path(ppc):
     parser = SmtLibParser()
     new_path = None
     try:
-        script = parser.get_script(cStringIO(ppc))
+        script = parser.get_script(moves.cStringIO(ppc))
         formula = script.get_last_formula()
         prefix = formula.arg(0)
         constraint = formula.arg(1)
@@ -329,7 +329,7 @@ def generate_false_constraint(path_constraint):
 def generate_special_paths(con_loc, ppc_str):
     parser = SmtLibParser()
     special_list = []
-    script = parser.get_script(cStringIO(ppc_str))
+    script = parser.get_script(moves.cStringIO(ppc_str))
     path_condition = script.get_last_formula()
     angelic_count = int(
         len(re.findall("angelic!(.+?)!0", str(path_condition.serialize()))) / 4
@@ -628,7 +628,7 @@ def generate_binary_file(byte_array, seed_file_path, gen_file_path=None):
 
 def generate_formula(formula_str):
     parser = SmtLibParser()
-    script = parser.get_script(cStringIO(formula_str))
+    script = parser.get_script(moves.cStringIO(formula_str))
     formula = script.get_last_formula()
     return formula
 
@@ -673,7 +673,7 @@ def generate_path_for_negation():
     emitter.normal("\tgenerating path for negation of patch constraint")
     for control_loc, sym_path in values.LIST_PPC:
         if control_loc == values.CONF_LOC_PATCH:
-            script = parser.get_script(cStringIO(sym_path))
+            script = parser.get_script(moves.cStringIO(sym_path))
             formula = script.get_last_formula()
             patch_constraint = formula
             if formula.is_and():
