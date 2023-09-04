@@ -1,7 +1,5 @@
-import argparse
 import logging
 import math
-import subprocess
 from pathlib import Path
 from typing import List, Dict, Tuple, Set, Union, Optional, NamedTuple
 from enum import Enum, auto
@@ -19,7 +17,6 @@ from pysmt.shortcuts import (
     get_model,
     Symbol,
     BV,
-    Equals,
     EqualsOrIff,
     And,
     Or,
@@ -30,9 +27,9 @@ from pysmt.shortcuts import (
     SBV,
 )
 import pysmt.environment
-from pysmt.walkers import DagWalker, IdentityDagWalker
+from pysmt.walkers import DagWalker
 from pysmt.environment import get_env
-from pysmt.smtlib.printers import SmtPrinter, SmtDagPrinter
+from pysmt.smtlib.printers import SmtPrinter
 from pysmt.typing import BOOL, BV32, BV8, ArrayType
 import pysmt.operators as op
 
@@ -204,8 +201,8 @@ class Instance(Enum):
             return par
 
 
-# Component is a pair of component id and component semantics expressed as
-# formula over symbols representing program variables, holes, constants and return values
+# Component is a pair of component id and component semantics expressed as formula 
+# over symbols representing program variables, holes, constants and return values
 # There are some restriction for components:
 #   - all lvalues should be defined in terms of rvalues for all inputs
 Component = Tuple[str, Formula]

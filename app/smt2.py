@@ -1,21 +1,15 @@
 from pysmt.shortcuts import (
-    is_sat,
-    Not,
     And,
     Or,
-    TRUE,
     BVSGE,
     BVSLE,
-    Int,
-    NotEquals,
     SBV,
-    Equals,
     BVConcat,
     Select,
     BV,
 )
 from pysmt.typing import BV32, BV8, ArrayType
-from pysmt.shortcuts import write_smtlib, get_model, Symbol, is_sat, is_unsat, to_smtlib
+from pysmt.shortcuts import Symbol
 
 
 def generate_constraint_for_input_space(input_space):
