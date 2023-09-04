@@ -6,9 +6,10 @@ from app import emitter, values, extractor, merger, oracle, generator, smt2
 def refine_input_partition(
     path_condition, assertion, input_partition, is_multi_dimension
 ):
-    input_constraints = generator.generate_constraint_for_input_partition(
-        input_partition
-    )
+    # I had to make the necessary change here to use the function from the right
+    # module. The previous call was to the generator module which does not have
+    # generate_constraint_for_input_partition()
+    input_constraints = smt2.generate_constraint_for_input_partition(input_partition)
     path_constraints = And(path_condition, input_constraints)
     is_exist_check = And(path_constraints, Not(assertion))
     is_always_check = And(path_constraints, assertion)

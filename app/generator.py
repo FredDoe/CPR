@@ -394,7 +394,8 @@ def generate_mask_bytes(klee_out_dir, poc_path):
 
 def generate_model(formula):
     """
-    This function will invoke PySMT APIs to solve the provided formula and return the byte list of the model
+    This function will invoke PySMT APIs to solve the provided formula and return
+    the byte list of the model
     Arguments:
         formula: smtlib formatted formula
     """
@@ -577,7 +578,8 @@ def generate_new_input(sym_path, argument_list=None, poc_path=None, gen_path=Non
 
 def generate_model_cli(formula):
     """
-    This function will invoke the Z3 Cli interface to solve the provided formula and return the model byte list
+    This function will invoke the Z3 Cli interface to solve the provided
+    formula and return the model byte list
     Arguments:
         formula: smtlib formatted formula
     """
