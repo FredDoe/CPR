@@ -1,6 +1,7 @@
 def parse_z3_output(z3_output):
     """
-    This function will read the output log of z3 cli interface and extract/parse the values of the model
+    This function will read the output log of z3 cli interface and
+    extract/parse the values of the model
     Arguments:
         z3_output: string output of the z3 cli invocation
     """

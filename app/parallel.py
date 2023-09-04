@@ -20,7 +20,6 @@ import threading
 import time
 import os
 import sys
-import re
 
 
 def mute():

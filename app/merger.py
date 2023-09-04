@@ -1,4 +1,4 @@
-from pysmt.shortcuts import is_sat, Not, And, TRUE
+from pysmt.shortcuts import Not, And, TRUE
 from pysmt.shortcuts import is_unsat
 from app import utilities, smt2
 

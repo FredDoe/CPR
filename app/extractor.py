@@ -1,5 +1,5 @@
 import re
-from six.moves import cStringIO
+from six import moves
 from pysmt.shortcuts import And
 import os
 
@@ -37,7 +37,7 @@ def extract_var_relationship(var_expr_map):
         str_script += "(assert (= " + prog_var_expr + " " + angelic_var_expr + " ))\n"
         str_script += "(assert (= " + prog_var_name + " " + angelic_var_name + " ))\n"
         str_script += "(exit)\n"
-        script = parser.get_script(cStringIO(str_script))
+        script = parser.get_script(moves.cStringIO(str_script))
         formula = script.get_last_formula()
         if not relationship:
             relationship = formula
